@@ -101,10 +101,19 @@ namespace FirstLookAtRedis
                 //    Console.WriteLine("Received '{0}' from channel '{1}'", message, channel);
                 //};
 
-                Task.Run(() =>
+                //Task.Run(() =>
+                //{
+                //    client.PublishMessage("debug", "Hello C#!!");
+                //});
+
+                var sub = client.CreateSubscription();
+
+                sub.OnMessage = (channel, message) =>
                 {
-                    client.PublishMessage("debug", "Hello C#!!");
-                });
+                    Console.WriteLine($"I got a message: {message} from {channel} ");
+                };
+
+                sub.SubscribeToChannels("news");
 
                 Console.ReadLine();
             }
