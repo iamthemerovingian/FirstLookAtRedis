@@ -24,29 +24,72 @@ namespace FirstLookAtRedis
             //    Console.ReadLine();
             //}
 
+            //using (IRedisClient client = new RedisClient(new RedisEndpoint { Host = "117.20.40.28", Port = 6379, Password = "Yellow889" }))
+            //{
+            //    var customerNams = client.Lists["urn:customernames"];
+            //    customerNams.Clear();
+            //    customerNams.Add("Joe");
+            //    customerNams.Add("Mary");
+            //    customerNams.Add("Bob");
+            //    customerNams.Add("Mili");
+
+            //    customerNams.Push("Pusehd");
+            //    customerNams.Append("Appended");
+            //}
+
+            //using (IRedisClient client = new RedisClient())
+            //{
+            //    var customerNames = client.Lists["urn:customernames"];
+            //    foreach (var item in customerNames)
+            //    {
+            //        Console.WriteLine(item);
+            //    }
+
+            //}
+
+            long lastId = 0;
+
             using (IRedisClient client = new RedisClient(new RedisEndpoint { Host = "117.20.40.28", Port = 6379, Password = "Yellow889" }))
             {
-                var customerNams = client.Lists["urn:customernames"];
-                customerNams.Clear();
-                customerNams.Add("Joe");
-                customerNams.Add("Mary");
-                customerNams.Add("Bob");
-                customerNams.Add("Mili");
-
-                customerNams.Push("Pusehd");
-                customerNams.Append("Appended");
-            }
-
-            using (IRedisClient client = new RedisClient())
-            {
-                var customerNames = client.Lists["urn:customernames"];
-                foreach (var item in customerNames)
+                var customerClient = client.As<Customer>();
+                var customer = new Customer
                 {
-                    Console.WriteLine(item);
-                }
+                    Id = customerClient.GetNextSequence(),
+                    Address = "123 Main Street.",
+                    Name = "Bob Green",
+                    Orders = new List<Order> { new Order { OrderNumber = "AB 123" }, new Order { OrderNumber = "AB 456" } }
+                };
 
+                var storedCustomer = customerClient.Store(customer);
+                lastId = storedCustomer.Id;
             }
+
+            using (IRedisClient client = new RedisClient(new RedisEndpoint { Host = "117.20.40.28", Port = 6379, Password = "Yellow889" }))
+            {
+                var customerClient = client.As<Customer>();
+                var customer = customerClient.GetById(lastId);
+
+                Console.WriteLine($"Customer Name: {customer.Name}, Id: {customer.Id}, Address: {customer.Address}, Orders: ");
+                foreach (var item in customer.Orders)
+                {
+                    Console.WriteLine(item.OrderNumber);
+                }
+            }
+
             Console.ReadLine();
         }
+    }
+
+    public class Customer
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public List<Order> Orders { get; set; }
+    }
+
+    public class Order
+    {
+        public string OrderNumber { get; set; }
     }
 }
