@@ -76,21 +76,38 @@ namespace FirstLookAtRedis
             //    }
             //}
 
-            using (IRedisClient client = new RedisClient(new RedisEndpoint { Host = "117.20.40.28", Port = 6379, Password = "Yellow889" }))
-            {
-                var transaction = client.CreateTransaction();
-                transaction.QueueCommand(c => c.Set("abc", 1));
-                transaction.QueueCommand(c => c.Increment("abc", 1));
-                transaction.Commit();
-            }
+            //using (IRedisClient client = new RedisClient(new RedisEndpoint { Host = "117.20.40.28", Port = 6379, Password = "Yellow889" }))
+            //{
+            //    var transaction = client.CreateTransaction();
+            //    transaction.QueueCommand(c => c.Set("abc", 1));
+            //    transaction.QueueCommand(c => c.Increment("abc", 1));
+            //    transaction.Commit();
+            //}
+
+            //using (IRedisClient client = new RedisClient(new RedisEndpoint { Host = "117.20.40.28", Port = 6379, Password = "Yellow889" }))
+            //{
+            //    int result = client.Get<int>("abc");
+            //    Console.WriteLine(result);
+            //}
 
             using (IRedisClient client = new RedisClient(new RedisEndpoint { Host = "117.20.40.28", Port = 6379, Password = "Yellow889" }))
             {
-                int result = client.Get<int>("abc");
-                Console.WriteLine(result);
-            }
+                //IRedisSubscription clientSubscription = client.CreateSubscription();
 
-            Console.ReadLine();
+                //clientSubscription.SubscribeToChannels("debug");
+
+                //clientSubscription.OnMessage = (channel, message) =>
+                //{
+                //    Console.WriteLine("Received '{0}' from channel '{1}'", message, channel);
+                //};
+
+                Task.Run(() =>
+                {
+                    client.PublishMessage("debug", "Hello C#!!");
+                });
+
+                Console.ReadLine();
+            }
         }
     }
 
